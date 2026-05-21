@@ -3,20 +3,20 @@ Um sistema LFS (Linux From Scratch) compilado do zero. O objetivo do projeto é 
 
 ## Ambiente utilizado:
 
-Host: Debian 13 virtualizado com Virtual Machine Maneger.
-Arquitetura do sistema: x86_64.
-CPU: 1 soquet - 8 núcleos - 1 thread por núcleo.
-RAM: 8GiB alocados - 2333Hz.
-Armazenamento: host debian - 40Gib - Partição única | Partição externa 25Gib - 23Gib para sistema - 2Gib para Swap.
-Boot: Legacy BIOS.
+Host: Debian 13 virtualizado com Virtual Machine Maneger. <br>
+Arquitetura do sistema: x86_64.<br>
+CPU: 1 soquet - 8 núcleos - 1 thread por núcleo.<br>
+RAM: 8GiB alocados - 2333Hz.<br>
+Armazenamento: host debian - 40Gib - Partição única | Partição externa 25Gib - 23Gib para sistema - 2Gib para Swap.<br>
+Boot: Legacy BIOS.<br>
 
 ## Sistema objetivo:
-Versão do manual LFS: ✔️ Linux From Scratch 12.2 (stable).
-Filesystem: etx4.
-Init system: SysVinit.
-Kernel: 6.
-Toolchain: Modern GCC.
-Segurança implementada: Hardened flags custom.
+Versão do manual LFS: ✔️ Linux From Scratch 12.2 (stable).<br>
+Filesystem: etx4.<br>
+Init system: SysVinit.<br>
+Kernel: 6.<br>
+Toolchain: Modern GCC.<br>
+Segurança implementada: Hardened flags custom.<br>
 
 ### Capítulo 2 do Manual LFS - Preparação do HOST.
 
