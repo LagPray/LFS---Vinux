@@ -1,4 +1,4 @@
-# LFS---Vinux
+# LFS Vinux
 Um sistema LFS (Linux From Scratch) compilado do zero. O objetivo do projeto é aprender na pratica como o ambiente Linux opera na base, entendendo como é contruido e levado à produção.
 
 ## Ambiente utilizado:
@@ -183,17 +183,17 @@ E colocaremos um **#** no inicio da linha que começar com **deb cdrom**, para d
 ### Capítulo 3 do manual LFS - Particionamento
 Embora tenha sido apontado no ambiente utilizado a existencia de 2 partições, inicialmente existia apenas 1 (host debian), preciso criar outra para que qualquer coisa que seja feita dentro do sistema LFS esteja isolado e não afete o host. Para criar outra partição, o primeiro passo é desligar a VM e ir no Virtual Machine Maneger e abrir a VM.
 
-[imagem1]()
+![imagem1](image/Imagem1.png)
 
 Como é possivel ver na imagem, existe apenas 1 disco dentro da maquina virtual, precisamos criar outro. No canto inferior esquero da tela existe um botão chamado "Adicionar Hardware". Clicamos nele.
 Uma nova tela se abrirá e nela selecionaremos o tipo armazenamento e deixaremos as configurações da seguinte forma, clicando em concluir ao final:
 
-[imagem2]()
+![imagem2](image/Imagem2.png)
 
 Agora ligaremos a VM novamente.
 Dentro dela agora rodaremos o comando a seguir para listarmos todos os discos do sistema. Deverá ter a nova partição sdb:
 
-[Imagem3]()
+![Imagem3](image/Imagem3.png)
 
 Se ela aparecer está tudo certinho, agora vamos particiona-la com editor de tabela de partições fdisk:
 ```
