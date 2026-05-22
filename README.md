@@ -3,7 +3,7 @@ Um sistema LFS (Linux From Scratch) compilado do zero. O objetivo do projeto é 
 
 ## Ambiente utilizado:
 
-Host: Debian 13 virtualizado com Virtual Machine Maneger. <br>
+Host: Debian 13 virtualizado com Virtual Machine Manager. <br>
 Arquitetura do sistema: x86_64.<br>
 CPU: 1 soquet - 8 núcleos - 1 thread por núcleo.<br>
 RAM: 8GiB alocados - 2333Hz.<br>
@@ -12,7 +12,7 @@ Boot: Legacy BIOS.<br>
 
 ## Sistema objetivo:
 Versão do manual LFS: ✔️ Linux From Scratch 12.2 (stable).<br>
-Filesystem: etx4.<br>
+Filesystem: ext4.<br>
 Init system: SysVinit.<br>
 Kernel: 6.<br>
 Toolchain: Modern GCC.<br>
@@ -181,7 +181,7 @@ nano /etc/apt/sources.list.
 E colocaremos um _**#**_ no inicio da linha que começar com _**deb cdrom**_, para deixar comentado e não ser usado futuramente. Salvamos o arquivo e fechamos o editor.
 
 ### Capítulo 3 do manual LFS - Particionamento
-Embora tenha sido apontado no ambiente utilizado a existencia de 2 partições, inicialmente existia apenas 1 (host debian), preciso criar outra para que qualquer coisa que seja feita dentro do sistema LFS esteja isolado e não afete o host. Para criar outra partição, o primeiro passo é desligar a VM e ir no Virtual Machine Maneger e abrir a VM.
+Embora tenha sido apontado no ambiente utilizado a existencia de 2 partições, inicialmente existia apenas 1 (host debian), preciso criar outra para que qualquer coisa que seja feita dentro do sistema LFS esteja isolado e não afete o host. Para criar outra partição, o primeiro passo é desligar a VM e ir no Virtual Machine Manager e abrir a VM.
 
 ![imagem1](image/Imagem1.png)
 
@@ -231,9 +231,9 @@ E aqui podemos validar o tipo de cada uma das partições.
 
 ### Capitulo 4 do manual LFS - Preparando o ambiente LFS
 
-Nessa proxima etapa vamos deixar o ambiente da nova partiçao criada para o LFS pronta para ser devidamente manipulada, vamos formatar a partição principal para o formato etx4:
+Nessa proxima etapa vamos deixar o ambiente da nova partiçao criada para o LFS pronta para ser devidamente manipulada, vamos formatar a partição principal para o formato ext4:
 ```
-#mkfs.ext4 para criar o filesystem etx4 e -v para verbose.
+#mkfs.ext4 para criar o filesystem ext4 e -v para verbose.
 mkfs.ext4 -v /dev/vdb1
 ```
 Em seguida, vamos criar o swap e ativa-lo em seguida:
@@ -317,6 +317,7 @@ esac
 Com tudo criado, vamos ajustar o ownership do ambiente LFS:
 ```
 chown -v lfs $LFS/{usr{,/*},lib,var,etc,bin,sbin,tools,lib64}
+#Abaixo mudaremos o grupo também além do usuário.
 chown -v lfs:lfs $LFS/tools
 ```
 Como sei que meu sistema é x86_64, incluí a pasta _**lib64**_ junto às outras em um unico comando, mas se o sistema for diferente (se ele não criar a pasta lib64 no case) não é pra ser incluída na mudança de dono.
