@@ -333,3 +333,84 @@ drwxr-xr-x 2 lfs lfs 4096 mai 22 00:17 /mnt/lfs/tools<br>
 drwx------ 15 lfs lfs 4096 mai 13 23:02 /home/lfs**<br>
 O foco é que as pastas cruciais agora pertençam ao usuário e grupo _**lfs**_. A pasta /mnt/lfs não precisa ser obrigatóriamente do grupo e usuário _**lfs**_, mas as outras duas sim!
 Faça uma snapshot do estado atual.
+
+#### Observação: Se a maquina for desligada durante essas novas fases, dados podem ser pardidos. Por exemplo, se a maquina for desligada no ponto que estamos agora o ponto de montagem será desfeito e será necessário refaze-lo. Isso não significa recriar tudo, apenas reapontar o ponto de montagem para o disco do lfs.
+
+### Capítulo 4.3 do manual do LFS - Shell limpo do lfs
+
+Agora vamos trocar para o usuário que criamos:
+```
+#É vital manter o _-_ no comando, pois sem ele as vaziaveis do root podem vazar e/ou ficar com o home/PATH errado.
+su - lfs
+```
+Após trocar, validar:
+```
+whoami
+echo $HOME
+```
+Esperamos o output _**lfs**_ e _**/home/lfs**_.
+Na sequência vamos criar o .bash_profile do usuário _**lfs**_. Essa ação é extremamente crítica, faça com atenção.
+```
+#env -i apaga todo ambiente herdado, mantendo apenas a HOME, o TERM e o PS1.
+cat > ~/.bash_profile << "EOF"
+exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+EOF
+```
+Vamos agora criar o .bashrc:
+```
+#set +h  desativa hash de comandos do bash 
+#LC_ALL=POSIX  builds reproduzíveis              
+#LFS_TGT  target triplet da toolchain       
+#PATH=$LFS/tools/bin  prioriza toolchain temporária     
+#CONFIG_SITE  evita autodetect incorreto        
+#MAKEFLAGS="-j6"  paralelismo da compilação         
+
+cat > ~/.bashrc << "EOF"
+set +h
+umask 022
+LFS=/mnt/lfs
+LC_ALL=POSIX
+LFS_TGT=$(uname -m)-lfs-linux-gnu
+PATH=/usr/bin
+if [ ! -L /bin ]; then PATH=/bin:$PATH; fi
+PATH=$LFS/tools/bin:$PATH
+CONFIG_SITE=$LFS/usr/share/config.site
+export LFS LC_ALL LFS_TGT PATH CONFIG_SITE
+export MAKEFLAGS="-j6"
+EOF
+```
+Aqui estou usando o _**-j6**_ por que estou rodando a VM com 6 núcleos pois isso poupa muito tempo na hora de compilar bibliotecas e ferramentas adiante, mas se ficar muito pesado reduza para 4. Não recomendo rduzir mais que isso.
+Vamos recarregar o shell:
+```
+source ~/.bash_profile
+```
+Depois de recarregar o shell, o ambiente pode ficar estranho, mas isso é normal e esperado pois estamos agora rodando o bash na sua versão mais limpa e minimalista.
+Vamos validar:
+```
+echo $LFS
+echo $LFS_TGT
+echo $PATH
+env | sort
+```
+Esperamos como resultado verificar se nossa variável de ambiente **LFS** se mantem e tambem o PATH e o TGT do novo usuário:
+```
+/mnt/lfs
+#x86_64-lfs-linux-gnu é o build triplet, uma string padronizada que descreve em qual plataforma o codigo será compilado, sendo o _**x86_64**_ a arquitetura, o lfs o provedor/dono e o linux-gnu é o SO + ABI (ABI -> Application Binary Interface. É a definição de como os programas compilados devem interagir entre si e com o proprio sistema a nivel de maquina.
+x86_64-lfs-linux-gnu
+/mnt/lfs/tools/bin:/usr/bin
+CONFIG_SITE=/mnt/lfs/usr/share/config.site
+HOME=/home/lfs
+LC_ALL=POSIX
+LFS=/mnt/lfs
+LFS_TGT=x86_64-lfs-linux-gnu
+MAKEFLAGS=-j6
+PATH=/mnt/lfs/tools/bin:/usr/bin
+PS1=${debian_chroot:+($debian_chroot)}\u@\h:\w\$ 
+PWD=/home/lfs
+SHLVL=1
+TERM=xterm-256color
+_=/usr/bin/env
+```
+Se tudo até aqui tiver sido feito e validado corretamente, faça outra snapshot.
+
+### Capítulo 4.4 do manual LFS - Sources e downloads
