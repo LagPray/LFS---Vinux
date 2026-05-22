@@ -178,7 +178,7 @@ Adicionalmente no meu caso que instalei o sistema operacional numa VM, é necess
 #Editar arquivo de lista dos repositórios que o sistema usa.
 nano /etc/apt/sources.list.
 ```
-E colocaremos um **#** no inicio da linha que começar com **deb cdrom**, para deixar comentado e não ser usado futuramente. Salvamos o arquivo e fechamos o editor.
+E colocaremos um _**#**_ no inicio da linha que começar com _**deb cdrom**_, para deixar comentado e não ser usado futuramente. Salvamos o arquivo e fechamos o editor.
 
 ### Capítulo 3 do manual LFS - Particionamento
 Embora tenha sido apontado no ambiente utilizado a existencia de 2 partições, inicialmente existia apenas 1 (host debian), preciso criar outra para que qualquer coisa que seja feita dentro do sistema LFS esteja isolado e não afete o host. Para criar outra partição, o primeiro passo é desligar a VM e ir no Virtual Machine Maneger e abrir a VM.
@@ -222,4 +222,113 @@ Criando a partição principal
  `p`      imprime tabela
  `w`      grava no disco
 ```
-Agora vamos validar:
+Agora vamos validar usando o _**lsblk**_ e também _**fdisk -l /dev/vdb**_. Esperamos os seguintes outputs respectivamente:
+![imagem4](image/imagem4.png)
+Aqui validamos que o disco vdb agora tem 2 partições novas com 23GiB e 2GiB.
+
+![imagem5](image/imagem5.png)
+E aqui podemos validar o tipo de cada uma das partições.
+
+### Capitulo 4 do manual LFS - Preparando o ambiente LFS
+
+Nessa proxima etapa vamos deixar o ambiente da nova partiçao criada para o LFS pronta para ser devidamente manipulada, vamos formatar a partição principal para o formato etx4:
+```
+#mkfs.ext4 para criar o filesystem etx4 e -v para verbose.
+mkfs.ext4 -v /dev/vdb1
+```
+Em seguida, vamos criar o swap e ativa-lo em seguida:
+```
+mkswap /dev/vdb2
+#quando terminar, rodar:
+swapon /dev/vdb2
+```
+Validar o procedimento:
+```
+swapon --show
+```
+Esperamos ver a partição _**/dev/vdb2**_ aparecendo como output.
+
+Vamos agora criar efetivamente o ponto de montagem _**lfs**_ e validá-lo:
+```
+mkdir -pv /mnt/lfs | ls /mnt
+```
+Agora com o ponto de montagem criado vamos monta-lo o filesystem do LFS:
+```
+mount -v -t ext4 /dev/vdb1 /mnt/lfs
+```
+Validar montagem:
+```
+df -h | grep lfs
+```
+Esperamos o retorno _**/dev/vdb1        23G  2,1M   22G   1% /mnt/lfs**_
+
+Se tudo correr corretamente até aqui, a fase de preparação do LFS se aproxima do fim, faltando apenas definir uma variável de ambiente que será como uma referência ao LFS para o sistema base. Façamos:
+```
+#Definindo a variavel de ambiente.
+export LFS=/mnt/lfs
+```
+Aplicar a persistencia no bash:
+```
+echo 'export LFS=/mnt/lfs' >> ~/.bashrc
+```
+Recarregar o bash:
+```
+source ~/.bashrc
+```
+E por fim validar:
+```
+echo $LFS
+```
+Esperamos a saida _**/mnt/lfs**_.
+
+Se tudo correr corretamente até aqui, os preparativos estão encerrados. Daqui pra frente tudo que for feito terá que ser feito com muita atenção, pois até o menor dos erros pode matar completamente o sistema se não for corrigido em tempo. Como estou fazendo o sistema numa maquina virtual, apartir de agora farei um snapshot do sistema sempre que uma etapa for validada, pois se algum problema ocorrer ou erro passar não precisarei recomeçar do zero.
+Iniciaremos a parte **divertida** agora.
+
+### Capítulo 4.2 do manual LFS - Usuário.
+
+Nessa etapa vamos separar o ambiente do host debian do ambiente temporário LFS. Para garantir que não teremos problemas respingando no host, precisamos deixar tudo que diz respeito ao LFS totalmente isolado do resto. Para isso criaremos um usuário e um grupo próprios para isso.
+Criar grupo:
+```
+groupadd lfs
+```
+Criar usuário:
+```
+#-s /bin/bash  define o shell padrão do usuário.
+#-g lfs  define o grupo do usuário como lfs (que acabamos de criar).
+#-m cria  uma home para o usuário.
+#-k /dev/null  evitacopiar configurações do host.
+useradd -s /bin/bash -g lfs -m -k /dev/null lfs
+```
+Mudar a senha do usuário criado:
+```
+#Recomendado deixar senha fácil para trocas facilitadas.
+passwd lfs
+```
+Por fim criar diretórios do LFS:
+```
+mkdir -pv $LFS/{usr,lib,var,etc,bin,sbin,tools}
+```
+Tambem criaremos a pasta validada da arquitetura:
+```
+case $(uname -m) in
+  x86_64) mkdir -pv $LFS/lib64 ;;
+esac
+```
+Com tudo criado, vamos ajustar o ownership do ambiente LFS:
+```
+chown -v lfs $LFS/{usr{,/*},lib,var,etc,bin,sbin,tools,lib64}
+chown -v lfs:lfs $LFS/tools
+```
+Como sei que meu sistema é x86_64, incluí a pasta _**lib64**_ junto às outras em um unico comando, mas se o sistema for diferente (se ele não criar a pasta lib64 no case) não é pra ser incluída na mudança de dono.
+Por fim valide:
+```
+ls -ld $LFS
+ls -ld $LFS/tools
+ls -ld /home/lfs
+```
+A sainda esperada de tudo isso deverá ser parecida com isso:
+**drwxr-xr-x 11 root root 4096 mai 22 00:17 /mnt/lfs
+drwxr-xr-x 2 lfs lfs 4096 mai 22 00:17 /mnt/lfs/tools
+drwx------ 15 lfs lfs 4096 mai 13 23:02 /home/lfs**
+O foco é que as pastas cruciais agora pertençam ao usuário e grupo _**lfs**_. A pasta /mnt/lfs não precisa ser obrigatóriamente do grupo e usuário _**lfs**_, mas as outras duas sim!
+Faça uma snapshot do estado atual.
