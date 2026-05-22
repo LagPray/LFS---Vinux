@@ -222,11 +222,11 @@ Criando a partição principal
  `p`      imprime tabela
  `w`      grava no disco
 ```
-Agora vamos validar usando o _**lsblk**_ e também _**fdisk -l /dev/vdb**_. Esperamos os seguintes outputs respectivamente:
-![imagem4](image/imagem4.png)
-Aqui validamos que o disco vdb agora tem 2 partições novas com 23GiB e 2GiB.
+Agora vamos validar usando o _**lsblk**_ e também _**fdisk -l /dev/vdb**_. Esperamos os seguintes outputs respectivamente:<br>
+![imagem4](image/imagem4.png)<br>
+Aqui validamos que o disco vdb agora tem 2 partições novas com 23GiB e 2GiB.<br>
 
-![imagem5](image/imagem5.png)
+![imagem5](image/imagem5.png)<br>
 E aqui podemos validar o tipo de cada uma das partições.
 
 ### Capitulo 4 do manual LFS - Preparando o ambiente LFS
@@ -326,9 +326,9 @@ ls -ld $LFS
 ls -ld $LFS/tools
 ls -ld /home/lfs
 ```
-A sainda esperada de tudo isso deverá ser parecida com isso:
-**drwxr-xr-x 11 root root 4096 mai 22 00:17 /mnt/lfs
-drwxr-xr-x 2 lfs lfs 4096 mai 22 00:17 /mnt/lfs/tools
-drwx------ 15 lfs lfs 4096 mai 13 23:02 /home/lfs**
+A sainda esperada de tudo isso deverá ser parecida com isso:<br>
+**drwxr-xr-x 11 root root 4096 mai 22 00:17 /mnt/lfs<br>
+drwxr-xr-x 2 lfs lfs 4096 mai 22 00:17 /mnt/lfs/tools<br>
+drwx------ 15 lfs lfs 4096 mai 13 23:02 /home/lfs**<br>
 O foco é que as pastas cruciais agora pertençam ao usuário e grupo _**lfs**_. A pasta /mnt/lfs não precisa ser obrigatóriamente do grupo e usuário _**lfs**_, mas as outras duas sim!
 Faça uma snapshot do estado atual.
